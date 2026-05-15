@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ob-havo Tahlil Tizimi</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">Ob-havo<strong>Tahlil</strong></span>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+      <button class="nav-btn" data-section="anomalies">Anomaliyalar</button>
+      <button class="nav-btn" data-section="statistics">Statistika</button>
+      <button class="nav-btn" data-section="live">Jonli</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ── MAIN ───────────────────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- TICKER -->
+  <div class="ticker-bar">
+    <span class="ticker-label">LIVE</span>
+    <div class="ticker-content" id="ticker">Ma'lumotlar yuklanmoqda…</div>
+  </div>
+
+  <!-- DASHBOARD SECTION -->
+  <section class="section active" id="section-dashboard">
+    <div class="section-title">
+      <h1>Ob-havo Ma'lumotlari <em>Prognozi</em></h1>
+      <p>NumPy · Pandas · Statistik Tahlil</p>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi-card" data-key="temperature">
+        <div class="kpi-icon">🌡️</div>
+        <div class="kpi-label">O'rtacha Harorat</div>
+        <div class="kpi-value" id="kpi-temp">—</div>
+        <div class="kpi-unit">°C</div>
+      </div>
+      <div class="kpi-card" data-key="humidity">
+        <div class="kpi-icon">💧</div>
+        <div class="kpi-label">O'rtacha Namlik</div>
+        <div class="kpi-value" id="kpi-hum">—</div>
+        <div class="kpi-unit">%</div>
+      </div>
+      <div class="kpi-card" data-key="wind_speed">
+        <div class="kpi-icon">🌬️</div>
+        <div class="kpi-label">O'rtacha Shamol</div>
+        <div class="kpi-value" id="kpi-wind">—</div>
+        <div class="kpi-unit">km/s</div>
+      </div>
+      <div class="kpi-card" data-key="pressure">
+        <div class="kpi-icon">🔵</div>
+        <div class="kpi-label">O'rtacha Bosim</div>
+        <div class="kpi-value" id="kpi-pres">—</div>
+        <div class="kpi-unit">hPa</div>
+      </div>
+    </div>
+
+    <!-- Chart controls -->
+    <div class="chart-controls">
+      <span class="ctrl-label">Ko'rsatkich:</span>
+      <button class="ctrl-btn active" data-col="temperature">Harorat</button>
+      <button class="ctrl-btn" data-col="humidity">Namlik</button>
+      <button class="ctrl-btn" data-col="wind_speed">Shamol</button>
+      <button class="ctrl-btn" data-col="pressure">Bosim</button>
+      <button class="ctrl-btn" data-col="precipitation">Yog'in</button>
+    </div>
+
+    <div class="chart-wrapper">
+      <canvas id="timeseriesChart"></canvas>
+    </div>
+
+    <!-- Monthly chart -->
+    <div class="chart-wrapper" style="margin-top:2rem">
+      <div class="chart-title">Oylik O'rtachalar</div>
+      <canvas id="monthlyChart"></canvas>
+    </div>
+  </section>
+
+  <!-- ANOMALIES SECTION -->
+  <section class="section" id="section-anomalies">
+    <div class="section-title">
+      <h1>Anomaliya <em>Tahlili</em></h1>
+      <p>Z-score usuli bilan aniqlangan g'ayritabiiy qiymatlar</p>
+    </div>
+
+    <div class="anomaly-summary" id="anomaly-summary">
+      <div class="anom-stat"><span id="anom-count">—</span><small>Jami anomaliya</small></div>
+      <div class="anom-stat"><span id="anom-max-z">—</span><small>Maksimal Z-score</small></div>
+      <div class="anom-stat"><span id="anom-top-col">—</span><small>Ko'p anomaliya ustun</small></div>
+    </div>
+
+    <div class="chart-wrapper">
+      <canvas id="anomalyChart"></canvas>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="data-table" id="anomaly-table">
+        <thead>
+          <tr>
+            <th>Sana</th>
+            <th>Ko'rsatkich</th>
+            <th>Qiymat</th>
+            <th>Z-score</th>
+            <th>Daraja</th>
+          </tr>
+        </thead>
+        <tbody id="anomaly-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- STATISTICS SECTION -->
+  <section class="section" id="section-statistics">
+    <div class="section-title">
+      <h1>Statistik <em>Tahlil</em></h1>
+      <p>NumPy yordamida hisoblangan asosiy statistika ko'rsatkichlari</p>
+    </div>
+
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <!-- Boxplot-like chart -->
+    <div class="chart-wrapper" style="margin-top:2rem">
+      <div class="chart-title">Harorat Taqsimoti (Histogram)</div>
+      <canvas id="histogramChart"></canvas>
+    </div>
+  </section>
+
+  <!-- LIVE SECTION -->
+  <section class="section" id="section-live">
+    <div class="section-title">
+      <h1>Jonli Ob-havo <em>Ma'lumotlari</em></h1>
+      <p>OpenWeatherMap API orqali real vaqt ma'lumotlari</p>
+    </div>
+
+    <div class="live-search">
+      <input type="text" id="city-input" class="city-input" placeholder="Shahar nomini kiriting…" value="Tashkent" />
+      <button class="search-btn" id="search-btn">Qidirish</button>
+    </div>
+
+    <div class="api-key-notice" id="api-key-notice" style="display:none">
+      ⚠️ OpenWeatherMap API kaliti o'rnatilmagan. Serverni <code>OWM_API_KEY=your_key</code> bilan ishga tushiring.
+    </div>
+
+    <div class="live-cards" id="live-cards"></div>
+
+    <div class="forecast-wrapper" id="forecast-wrapper"></div>
+  </section>
+
+</main>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <span>NumPy + Pandas + Flask · Toshkent © 2024</span>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
